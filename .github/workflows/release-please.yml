@@ -1,0 +1,46 @@
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pull-requests: write
+
+name: release-please
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        steps:
+            -   id: release-please
+                uses: googleapis/release-please-action@v4
+                with:
+                    # this assumes that you have created a personal access token
+                    # (PAT) and configured it as a GitHub action secret named
+                    # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
+                    token: ${{ github.token }}
+                    # this is a built-in strategy in release-please, see "Action Inputs"
+                    # for more options
+                    release-type: simple
+
+            -   uses: actions/checkout@v4
+                if: ${{ steps.release.outputs.release_created }}
+
+            -   uses: extractions/setup-just@v2
+                if: ${{ steps.release.outputs.release_created }}
+
+            -   name: Build installer
+                if: ${{ steps.release.outputs.release_created }}
+                run: |
+                    # Install makeself
+                    pushd $(mktemp -d)
+                    wget -O makeself.run https://github.com/megastep/makeself/releases/download/release-2.5.0/makeself-2.5.0.run
+                    chmod +x ./makeself.run
+                    ./makeself.run --target .
+                    cp ./makeself.sh /bin/makeself
+                    popd
+                    
+                    # Build installer
+                    just build install.run
+                    gh release upload "${{ steps.release-please.outputs }}" ./install.run
