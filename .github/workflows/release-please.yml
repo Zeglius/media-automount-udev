@@ -25,13 +25,13 @@ jobs:
                     release-type: simple
 
             -   uses: actions/checkout@v4
-                if: ${{ steps.release.outputs.release_created }}
+                if: ${{ steps.release-please.outputs.release_created }}
 
             -   uses: extractions/setup-just@v2
-                if: ${{ steps.release.outputs.release_created }}
+                if: ${{ steps.release-please.outputs.release_created }}
 
             -   name: Build installer
-                if: ${{ steps.release.outputs.release_created }}
+                if: ${{ steps.release-please.outputs.release_created }}
                 run: |
                     # Install makeself
                     pushd $(mktemp -d)
@@ -43,4 +43,4 @@ jobs:
                     
                     # Build installer
                     just build install.run
-                    gh release upload "${{ steps.release-please.outputs }}" ./install.run
+                    gh release upload "${{ steps.release-please.outputs.tag_name }}" ./install.run
