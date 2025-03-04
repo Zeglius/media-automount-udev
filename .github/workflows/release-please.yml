@@ -38,7 +38,7 @@ jobs:
                     wget -O makeself.run https://github.com/megastep/makeself/releases/download/release-2.5.0/makeself-2.5.0.run
                     chmod +x ./makeself.run
                     ./makeself.run --target .
-                    cp ./makeself.sh /bin/makeself
+                    sudo cp ./makeself.sh /bin/makeself
                     popd
                     
                     # Build installer
